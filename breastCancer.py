@@ -30,3 +30,27 @@ pipe_lr.fit(X_train, y_train)
 y_pred = pipe_lr.predict(X_test)
 test_acc= pipe_lr.score(X_test, y_test)
 print(f'Test accuracy: {test_acc:.3f}')
+
+
+import numpy as np
+from sklearn.model_selection import StratifiedKFold
+
+kfold = StratifiedKFold(n_splits = 10).split(X_train, y_train)
+scores = []
+for k, (train, test) in enumerate(kfold):
+    pipe_lr.fit(X_train[train], y_train[train])
+    score = pipe_lr.score(X_train[test], y_train[test])
+    scores.append(score)
+    print(f'Fold: {k+1:02d}, ', f'Class distr.: {np.bincount(y_train[train])}, ', f'Acc.: {score:.3f}')
+
+mean_acc = np.mean(scores)
+std_acc = np.std(scores)
+print(f'\nCV accuracy: {mean_acc:.3f} +/- {std_acc:.3f}')
+
+
+from sklearn.model_selection import cross_val_score
+scores = cross_val_score(estimator=pipe_lr, X=X_train, y=y_train, cv=10, n_jobs=1)
+print(f'CV accuracy scores: {scores}')
+print(f'CV accuracy: {np.mean(scores):.3f} ' 
+      f'+/- {np.std(scores):.3f}')
+
