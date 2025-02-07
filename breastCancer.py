@@ -109,3 +109,9 @@ gs = GridSearchCV(estimator=pipe_svc, param_grid = param_grid, scoring = 'accura
 gs = gs.fit(X_train, y_train)
 print(gs.best_score_)
 print(gs.best_params_)
+
+clf = gs.best_estimator_
+clf.fit(X_train, y_train)
+
+print(f'Test accuracy: {clf.score(X_test, y_test):.3f}')
+
