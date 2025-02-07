@@ -115,3 +115,18 @@ clf.fit(X_train, y_train)
 
 print(f'Test accuracy: {clf.score(X_test, y_test):.3f}')
 
+import scipy.stats
+param_range = [ 0.0001, 0.001, 0.01, 0.1, 1.0, 10.0, 100.0, 1000.0]
+param_range = scipy.stats.loguniform(0.0001, 1000.0)
+np.random.seed(1)
+param_range.rvs(10)
+print(param_range.rvs(10))
+from sklearn.model_selection import RandomizedSearchCV
+pipe_svc = make_pipeline(StandardScaler(), SVC(random_state=1))
+param_grid = [{'svc__C': param_range, 'svc__kernel': ['linear']}, {'svc__C': param_range, 'svc__kernel':['rbf']}]
+
+rs=RandomizedSearchCV(estimator=pipe_svc, param_distributions=param_grid, scoring='accuracy',refit=True, n_iter=20, cv=10, random_state=1, n_jobs=-1)
+rs=rs.fit(X_train, y_train)
+print(rs.best_score_)
+print(rs.best_params_)
+
