@@ -130,3 +130,13 @@ rs=rs.fit(X_train, y_train)
 print(rs.best_score_)
 print(rs.best_params_)
 
+from sklearn.experimental import enable_halving_search_cv
+from sklearn.model_selection import HalvingRandomSearchCV
+
+hs = HalvingRandomSearchCV(pipe_svc, param_distributions=param_grid, n_candidates='exhaust', resource='n_samples', factor=1.5, random_state=1, n_jobs=-1)
+hs = hs.fit(X_train, y_train)
+print(hs.best_score_)
+print(hs.best_params_)
+clf = hs.best_estimator_
+print(f'Test accuracy: {hs.score(X_test, y_test):.3f}')
+
