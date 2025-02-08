@@ -140,3 +140,20 @@ print(hs.best_params_)
 clf = hs.best_estimator_
 print(f'Test accuracy: {hs.score(X_test, y_test):.3f}')
 
+param_range = [0.0001, 0.001, 0.01, 0.1, 1.0, 10.0, 100.0, 1000.0]
+param_grid = [{'svc__C': param_range, 'svc__kernel': ['linear']}, 
+              {'svc__C': param_range, 'svc__gamma': param_range, 'svc__kernel': ['rbf']}]
+
+gs = GridSearchCV(estimator=pipe_svc, param_grid=param_grid, scoring='accuracy', cv=2)
+scores = cross_val_score(gs, X_train, y_train, scoring='accuracy', cv=5)
+print(f'CV accuracy: {np.mean(scores):.3f} '
+      f'+/- {np.std(scores):.3f}')
+
+    
+from sklearn.tree import DecisionTreeClassifier
+gs = GridSearchCV(estimator=DecisionTreeClassifier(random_state=0), param_grid=[{'max_depth': [1, 2, 3, 4, 5, 6, 7, None]}],
+                  scoring='accuracy', cv=2)
+
+scores = cross_val_score(gs, X_train, y_train, scoring='accuracy', cv=5)
+print(f'CV accuracy: {np.mean(scores):.3f} '
+      f'+/- {np.std(scores):.3f}')
