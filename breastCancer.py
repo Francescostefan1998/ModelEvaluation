@@ -205,14 +205,14 @@ print(gs.best_params_)
 
 from sklearn.metrics import roc_curve, auc
 from numpy import interp
-pipe_lr = make_pipeline(StandardScaler(), PCA(n_components=2), LogisticRegression(penality='l2', random_state = 1,  solver = 'lbfgs', C=100.0))
+pipe_lr = make_pipeline(StandardScaler(), PCA(n_components=2), LogisticRegression(penalty='l2', random_state = 1,  solver = 'lbfgs', C=100.0))
 X_train2 = X_train[:, [4, 14]]
 cv = list(StratifiedKFold(n_splits=3).split(X_train, y_train))
 fig = plt.figure(figsize=(7, 5))
 mean_tpr = 0.0
 mean_fpr = np.linspace(0, 1, 100)
 all_tpr = []
-for i (train, test) in enumerate(cv):
+for i,  (train, test) in enumerate(cv):
       probas = pipe_lr.fit(X_train2[train], y_train[train]).predict_proba(X_train2[test])
       fpr, tpr , thresholds = roc_curve(y_train[test], probas[:, 1], pos_label=1)
       mean_tpr += interp(mean_fpr, fpr, tpr)
