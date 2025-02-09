@@ -177,3 +177,58 @@ ax.xaxis.set_ticks_position('bottom')
 plt.xlabel('Predicted label')
 plt.ylabel('True label')
 plt.show()
+
+from sklearn.metrics import precision_score
+from sklearn.metrics import recall_score, f1_score
+from sklearn.metrics import matthews_corrcoef
+
+pre_val = precision_score(y_true =y_test, y_pred=y_pred)
+print(f'Precision: {pre_val:.3f}')
+rec_val = recall_score(y_true=y_test, y_pred=y_pred)
+print(f'Recall: {rec_val:.3f}')
+f1_val = f1_score(y_true=y_test, y_pred=y_pred)
+print(f'F1: {f1_val:.3f}')
+mcc_val = matthews_corrcoef(y_true=y_test, y_pred=y_pred)
+print(f'MCC: {mcc_val:.3f}')
+
+from sklearn.metrics import make_scorer
+c_gamma_range = [0.01, 0.1, 1.0, 10.0]
+param_grid = [{'svc__C': c_gamma_range, 'svc__kernel': ['linear']},
+              {'svc__C': c_gamma_range, 'svc__gamma': c_gamma_range, 'svc__kernel': ['rbf']}]
+
+scorer = make_scorer(f1_score, pos_label=0)
+gs = GridSearchCV(estimator=pipe_svc, param_grid=param_grid, scoring=scorer, cv=10)
+gs = gs.fit(X_train, y_train)
+print(gs.best_score_)
+print(gs.best_params_)
+
+
+from sklearn.metrics import roc_curve, auc
+from numpy import interp
+pipe_lr = make_pipeline(StandardScaler(), PCA(n_components=2), LogisticRegression(penality='l2', random_state = 1,  solver = 'lbfgs', C=100.0))
+X_train2 = X_train[:, [4, 14]]
+cv = list(StratifiedKFold(n_splits=3).split(X_train, y_train))
+fig = plt.figure(figsize=(7, 5))
+mean_tpr = 0.0
+mean_fpr = np.linspace(0, 1, 100)
+all_tpr = []
+for i (train, test) in enumerate(cv):
+      probas = pipe_lr.fit(X_train2[train], y_train[train]).predict_proba(X_train2[test])
+      fpr, tpr , thresholds = roc_curve(y_train[test], probas[:, 1], pos_label=1)
+      mean_tpr += interp(mean_fpr, fpr, tpr)
+      mean_tpr[0] = 0.0
+      roc_auc = auc(fpr, tpr)
+      plt.plot(fpr, tpr, label=f'ROC fold {i+1} (area = {roc_auc:.2f})')
+
+plt.plot([0,1], [0,1], linestyle='--', color=(0.6, 0.6, 0.6), label='Random guessing (area=0.5)')
+mean_tpr /= len(cv)
+mean_tpr[-1] = 1.0
+mean_auc = auc(mean_fpr, mean_tpr)
+plt.plot(mean_fpr, mean_tpr, 'k--', label=f'Mean ROC (area= {mean_auc:.2f})', lw=2)
+plt.plot([0,0,1], [0,1,1], linestyle=':', color='black', label='Perfect performance (area=1.0)')
+plt.xlim([-0.05, 1.05])
+plt.ylim([-0.05, 1.05])
+plt.xlabel('False positive rate')
+plt.ylabel('True positive rate')
+plt.legend(loc='lower right')
+plt.show()
