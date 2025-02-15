@@ -21,3 +21,45 @@ plt.show()
 
 import numpy as np
 np.argmax(np.bincount([0, 0, 1], weights = [0.2, 0.2, 0.6]))
+
+ex = np.array([[0.9, 0.1], [0.8, 0.2], [0.4, 0.6]])
+p = np.average(ex, axis=0, weights = [0.2, 0.2, 0.6])
+print(p)
+np.argmax(p)
+print(np.argmax(p))
+
+from sklearn.base import BaseEstimator
+from sklearn.base import ClassifierMixin
+from sklearn.preprocessing import LabelEncoder
+from sklearn.base import clone
+from sklearn.pipeline import _name_estimators
+import numpy as np
+import operator
+class MajorityVoteClassifier(BaseEstimator, ClassifierMixin):
+    def _init_(self, classifiers, vote = 'classlabel', weights=None):
+        self.classifiers = classifiers 
+        self.named_classfiers = {
+            key: value for key,
+            value in _name_estimators(classifiers)
+        }
+        self.vote = vote
+        self.weights = weights
+
+    def fit(self, X, y):
+        if self.vote not in ('probability', 'classlabe'):
+            raise ValueError(f"vote must be 'probability' "
+                             f"or 'classlabel' "
+                             f"; got (vote = {self.vote})")
+        
+        if self.weights and len(self.weights) != len(self.classifiers):
+            raise ValueError(f'Number of classfiers and '
+                             f' weights must be equal '
+                             f'; bot {len(self.weights)} weights, {len(self.classifiers)} classifiers')
+        self.lablenc_ = LabelEncoder()
+        self.lablenc_.fit(y)
+        self.classes_ = self.lablenc_.classes_
+        self.classifiers_ = []
+        for clf in self.classifiers:
+            fitted_clf = clone(clf).fit(X, self.lablenc_.transform(y))
+            self.classifiers_.append(fitted_clf)
+        return self
