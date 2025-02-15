@@ -18,3 +18,6 @@ plt.ylabel('Base/Ensemble error')
 plt.legend(loc='upper left')
 plt.grid(alpha=0.5)
 plt.show()
+
+import numpy as np
+np.argmax(np.bincount([0, 0, 1], weights = [0.2, 0.2, 0.6]))
