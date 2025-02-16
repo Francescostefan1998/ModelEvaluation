@@ -182,5 +182,19 @@ plt.text(-12.5, 4.5, s='Petal length [standardized]', ha='center', va='center', 
 plt.show()
 
 mv_clf.get_params()
-print(mv_clf.get_params())
+#print(mv_clf.get_params())
 
+
+from sklearn.model_selection import GridSearchCV
+params = {'decisiontreeclassifier__max_depth': [1,2], 'pipeline-1__clf__C': [0.001, 0.1, 100.0]}
+grid = GridSearchCV(estimator=mv_clf, param_grid=params, cv=10, scoring='roc_auc')
+grid.fit(X_train, y_train)
+# After the grid search has completed we can print the different hyperparameters value combinations and the average ROC AUC scores computed via 10-fold cross-validation as follows:
+for r, _ in enumerate(grid.cv_results_['mean_test_score']):
+    mean_score = grid.cv_results_['mean_test_score'][r]
+    std_dev = grid.cv_results_['std_test_score'][r]
+    params = grid.cv_results_['params'][r]
+    print(f'{mean_score:.3f} +/- {std_dev:.2f} {params}')
+
+print(f'Best parameters: {grid.best_params_}')
+print(f'ROC AUC : {grid.best_score_:.2f}')
